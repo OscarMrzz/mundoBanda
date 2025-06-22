@@ -2,7 +2,7 @@ import React from 'react'
 
 const sidebar = () => {
     return (
-        <div className='w-40  bg-white  shadow p-4'>
+        <div className='w-40 hidden md:block  bg-white  shadow p-4'>
             <div className='flex flex-col   h-full ga'>
                 <h2 className='text-lg text-gray-700 font-bold mb-4'>Federaciones</h2>
                 <ul className='space-y-2'>
