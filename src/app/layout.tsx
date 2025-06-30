@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Sidebar from "../../componet/sidebar/sidebar";
+import Sidebar from "../componet/sidebar/sidebar";
 
-import NavBarN from "../../componet/navbar/NavBarN";
+import NavBarN from "../componet/navbar/NavBarN";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,19 +27,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={ `${ geistSans.variable} ${geistMono.variable} antialiased flex flex-col ` }>
+      <body className={ `${ geistSans.variable} ${geistMono.variable}   antialiased flex flex-col min-h-screen` }>
         
         <header  >
           <NavBarN />
 
         </header>
-        <main className="flex bg-gray-100 h-full w-full">
-        <Sidebar />
+        <main className="flex-1 bg-gray-100  w-full">
+       
         {children}
 
         </main>
         <footer className="bg-gray-300  h-28 flex items-center justify-center">
-          <p className="flex text-center items-center  text-sm ">
+          <p className="flex text-center items-center  text-sm text-gray-800">
             © {new Date().getFullYear()} zaipher
           </p>
         </footer>
