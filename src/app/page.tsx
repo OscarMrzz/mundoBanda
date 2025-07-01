@@ -1,8 +1,5 @@
 import React from 'react'
-import CardGrup from '../componet/card/CardGrup'
-import CardMes from '../componet/card/CardMes'
-import CardEvento from '../componet/card/CardEvento'
-import Link from 'next/link'
+
 
 const page = () => {
   return (
