@@ -3,7 +3,7 @@ import React from 'react'
 
 const NavBarN = () => {
   return (
-    <nav className=" flex bg-blue-600 p-4 justify-between items-center pr-10 ">
+    <nav className="flex bg-gray-400/40 backdrop-blur-md p-4 justify-between items-center pr-10 border-b border-white/10">
       <div>
         <h1><Link href="/" className="text-white hover:underline no-underline">Mundo Banda</Link></h1>
       </div>
