@@ -3,7 +3,7 @@
 import CardsCreadorContenido from '@/componet/card/creadoresContenido/CardsCreadorContenido'
 import CardFederacion from '@/componet/card/federaciones/CardFederacion'
 import CardMediosComunicacion from '@/componet/card/mediosComunicacion/CardMediosComunicacion'
-import React, { use } from 'react'
+import React from 'react'
 
 import { useEffect, useState } from 'react'
 
