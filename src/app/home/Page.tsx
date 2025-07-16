@@ -5,41 +5,16 @@ import CardFederacion from '@/componet/card/federaciones/CardFederacion'
 import CardMediosComunicacion from '@/componet/card/mediosComunicacion/CardMediosComunicacion'
 import React from 'react'
 
-import { useEffect, useState } from 'react'
+
 
 const Home = () => {
-    const [showTituloEncabezado, setShowTituloEncabezado] = useState(true);
-
-    useEffect(() => {
-        let posicionAnteriorScroll = window.scrollY;
-
-        const controlScroll = () => {
-            const posicionActualScroll = window.scrollY;
-            if (posicionActualScroll > posicionAnteriorScroll) {
-                setShowTituloEncabezado(false);
-            } else {
-                setShowTituloEncabezado(true);
-            }
-            posicionAnteriorScroll = posicionActualScroll;
-        };
-
-        window.addEventListener('scroll', controlScroll);
-
-        return () => {
-            window.removeEventListener('scroll', controlScroll);
-        };
-    }, [])
     return (
         <div className='h-full'>
             <section id='hero' className=" px-24  h-screen bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/img/hero.jpg')", clipPath: "polygon(50% 0%, 100% 0, 100% 75%, 50% 100%, 0% 75%, 0 0)" }}>
                 <div className='flex flex-col items-start justify-center h-full '>
                     <div className='w-md flex flex-col items-start justify-end h-80'>
-                        <h1 className={`text-8xl font-bold text-white text-left pt-20 text-shadow
-            transition-all duration-[1500ms] ease-in-out
-                ${showTituloEncabezado == true ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-5'}`}>Mundo Banda</h1>
-                        <p className={`text-lg text-white text-left mt-4
-                 transition-all duration-[1500ms] ease-in-out
-                ${showTituloEncabezado == true ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-5'}`}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae quasi possimus aspernatur, ex minus culpa, nisi dolorum maiores fugiat officia voluptatum autem! Odit voluptatibus blanditiis non, assumenda tempore officia accusantium.</p>
+                        <h1 className="text-8xl font-bold text-white text-left pt-20 text-shadow transition-all duration-[1500ms] ease-in-out opacity-100 translate-y-0">Mundo Banda</h1>
+                        <p className="text-lg text-white text-left mt-4 transition-all duration-[1500ms] ease-in-out opacity-100 translate-y-0">Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae quasi possimus aspernatur, ex minus culpa, nisi dolorum maiores fugiat officia voluptatum autem! Odit voluptatibus blanditiis non, assumenda tempore officia accusantium.</p>
                     </div>
 
                 </div>
