@@ -6,7 +6,7 @@ import CardFederacion from '@/componet/card/federaciones/CardFederacion'
 import CardMediosComunicacion from '@/componet/card/mediosComunicacion/CardMediosComunicacion'
 
 
-import { useEffect, useState } from 'react'
+
 
 const Home = () => {
     return ( 
