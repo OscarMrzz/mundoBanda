@@ -64,7 +64,7 @@ const NavBarN = () => {
           <Link href="/campeones" className="text-white  ">Campeones</Link>
         </li>
         <li>
-          <Link href="/cancionesHome" className="text-white ">Musica</Link>
+          <Link href="/musicaHome" className="text-white ">Musica</Link>
         </li>
         <li>
           <Link href="/" className="text-white ">Herramientas</Link>

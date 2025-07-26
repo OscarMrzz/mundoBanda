@@ -59,8 +59,7 @@ const Page = () => {
     // 2. Insertar perfil con datos extra
     const userId = data.user?.id;
     if (userId) {
-      const { error: perfilError } = await supabase.from("perfiles").insert([
-        {
+      const { error: perfilError } = await supabase.from("perfiles").insert([{
           id: userId,
           nombre: form.nombre,
           alias: form.alias,
