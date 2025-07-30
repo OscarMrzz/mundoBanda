@@ -1,7 +1,6 @@
 "use client";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 const ItemsFormulario = {
     nombreCancion: "",
@@ -11,12 +10,24 @@ const ItemsFormulario = {
 
 const FormularioAgregarMusicaCompoent = () => {
     const [form, setForm] = useState(ItemsFormulario);
-      const [mensaje, setMensaje] = useState("");
-      const [loading, setLoading] = useState(false);
+    const [mensaje, setMensaje] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [supabaseAvailable, setSupabaseAvailable] = useState(false);
 
+    const router = useRouter();
+
+    useEffect(() => {
+      // Check if Supabase environment variables are available
+      const hasSupabaseConfig = !!(
+        process.env.NEXT_PUBLIC_SUPABASE_URL && 
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      );
+      setSupabaseAvailable(hasSupabaseConfig);
       
-  const router = useRouter();
-  const supabase = createClientComponentClient();
+      if (!hasSupabaseConfig) {
+        setMensaje("El sistema de base de datos no está configurado en este momento.");
+      }
+    }, []);
 
   
     // Cuando cambia un input
@@ -29,31 +40,46 @@ const FormularioAgregarMusicaCompoent = () => {
         setMensaje("");
         setLoading(true); 
         
-        // Verificar si el usuario está autenticado
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
-            setMensaje("Error: Debes estar logueado para agregar canciones");
-            setLoading(false);
-            return;
+        if (!supabaseAvailable) {
+          setMensaje("El sistema de base de datos no está disponible.");
+          setLoading(false);
+          return;
+        }
+
+        try {
+          const { createClientComponentClient } = await import('@supabase/auth-helpers-nextjs');
+          const supabase = createClientComponentClient();
+          
+          // Verificar si el usuario está autenticado
+          const { data: { user } } = await supabase.auth.getUser();
+          
+          if (!user) {
+              setMensaje("Error: Debes estar logueado para agregar canciones");
+              setLoading(false);
+              return;
+          }
+          
+          const { error } = await supabase.from("canciones").insert([
+              {
+                  nombreCancion: form.nombreCancion,
+                  nombreAutores: form.nombreAutores,
+                  urlYoutube: form.urlYoutube,
+              }
+          ]);
+          
+          if (error) {
+              console.error("Error detallado:", error);
+              setMensaje("Error al agregar la canción: " + error.message);
+          } else {
+              setMensaje("Canción agregada exitosamente");
+              setForm(ItemsFormulario); // Limpiar formulario
+              router.push("/musicaHome"); // Redirigir a la página de canciones
+          }
+        } catch (error) {
+          setMensaje("Error al inicializar el sistema de base de datos.");
+          console.warn('Error initializing Supabase:', error);
         }
         
-        const { error } = await supabase.from("canciones").insert([
-            {
-                nombreCancion: form.nombreCancion,
-                nombreAutores: form.nombreAutores,
-                urlYoutube: form.urlYoutube,
-            }
-        ]);
-        
-        if (error) {
-            console.error("Error detallado:", error);
-            setMensaje("Error al agregar la canción: " + error.message);
-        } else {
-            setMensaje("Canción agregada exitosamente");
-            setForm(ItemsFormulario); // Limpiar formulario
-            router.push("/musicaHome"); // Redirigir a la página de canciones
-        }
         setLoading(false);
     }
     
