@@ -38,7 +38,7 @@ export default function RootLayout({
         <header className="fixed top-0 left-0 right-0 z-50">
           <NavBarN />
         </header>
-        <main className="flex-1 bg-gradient-to-br from-gray-600 to-gray-900 w-full ">
+        <main className="flex-1 bg-gradient-to-br from-red-600 to-red-900 w-full ">
           {children}
         </main>
         <footer className="bg-gray-300 h-28 flex items-center justify-center">

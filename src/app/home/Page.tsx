@@ -11,7 +11,7 @@ import CardMediosComunicacion from '@/componet/card/mediosComunicacion/CardMedio
 const Home = () => {
     return ( 
         <div className='h-full flex flex-col gap-24'>
-            <section id='hero' className=" px-24  h-screen bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/img/hero.jpg')", clipPath: "polygon(50% 0%, 100% 0, 100% 75%, 50% 100%, 0% 75%, 0 0)" }}>
+            <section id='hero' className=" px-24  h-screen bg-red-600" style={{ clipPath: "polygon(50% 0%, 100% 0, 100% 75%, 50% 100%, 0% 75%, 0 0)" }}>
                 <div className='flex flex-col items-start justify-center h-full '>
                     <div className='w-md flex flex-col items-start justify-end h-80'>
                         <h1 className={` animation-fade-in-simple  text-8xl font-bold text-white text-left pt-20 text-shadow`}>Mundo Banda</h1>
@@ -91,11 +91,11 @@ const Home = () => {
 
                 </div>
                 <div className='animation-fade-in-simple-inverso grid grid-cols-4 grid-rows-2 gap-6 h-150 mb-24'>
-                    <div className=' bg-gray-500 shadow-md row-span-2'>1</div>
-                    <div className=' bg-gray-500 shadow-md col-span-2'>2</div>
-                    <div className=' bg-gray-500 shadow-md'>3</div>
-                    <div className=' bg-gray-500 shadow-md'>4</div>
-                    <div className=' bg-gray-500 shadow-md col-span-2'>5</div>
+                    <div className=' bg-red-600 shadow-md row-span-2'>1</div>
+                    <div className=' bg-red-600 shadow-md col-span-2'>2</div>
+                    <div className=' bg-red-600 shadow-md'>3</div>
+                    <div className=' bg-red-600 shadow-md'>4</div>
+                    <div className=' bg-red-600 shadow-md col-span-2'>5</div>
 
 
 
