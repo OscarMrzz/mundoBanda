@@ -1,38 +1,75 @@
 "use client";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 
 const NavBarN = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const supabase = createClientComponentClient();
+  const [supabaseAvailable, setSupabaseAvailable] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    // Checa si hay sesión
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setIsLoggedIn(!!data.session);
-    };
-    checkSession();
+    // Check if Supabase environment variables are available
+    const hasSupabaseConfig = !!(
+      process.env.NEXT_PUBLIC_SUPABASE_URL && 
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+    
+    setSupabaseAvailable(hasSupabaseConfig);
 
-    // Opcional: suscribirse a cambios de sesión
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session);
-    });
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
-  }, [supabase]);
+    if (hasSupabaseConfig) {
+      // Only initialize Supabase if config is available
+      import("@supabase/auth-helpers-nextjs").then(({ createClientComponentClient }) => {
+        const supabase = createClientComponentClient();
+        
+        // Checa si hay sesión
+        const checkSession = async () => {
+          try {
+            const { data } = await supabase.auth.getSession();
+            setIsLoggedIn(!!data.session);
+          } catch (error) {
+            console.warn('Error checking session:', error);
+            setIsLoggedIn(false);
+          }
+        };
+        checkSession();
+
+        // Opcional: suscribirse a cambios de sesión
+        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+          setIsLoggedIn(!!session);
+        });
+        
+        return () => {
+          authListener?.subscription.unsubscribe();
+        };
+      }).catch((error) => {
+        console.warn('Error initializing Supabase:', error);
+        setSupabaseAvailable(false);
+      });
+    }
+  }, []);
 
   // Maneja click en el botón (si está logueado, cierra sesión y redirige; si no, navega a login)
   const handleAuthClick = async (e: React.MouseEvent) => {
     e.preventDefault();
+    
+    if (!supabaseAvailable) {
+      // If Supabase is not available, just navigate to login
+      router.push("/login");
+      return;
+    }
+
     if (isLoggedIn) {
-      await supabase.auth.signOut();
-      setIsLoggedIn(false);
-      router.push("/");   // Redirige al home tras cerrar sesión
+      try {
+        const { createClientComponentClient } = await import("@supabase/auth-helpers-nextjs");
+        const supabase = createClientComponentClient();
+        await supabase.auth.signOut();
+        setIsLoggedIn(false);
+        router.push("/");   // Redirige al home tras cerrar sesión
+      } catch (error) {
+        console.warn('Error signing out:', error);
+        router.push("/");
+      }
     } else {
       router.push("/login"); // Navega a login si no está logueado
     }
@@ -79,7 +116,7 @@ const NavBarN = () => {
             className="text-white cursor-pointer"
             onClick={handleAuthClick}
           >
-            {isLoggedIn ? "cerrar sesión" : "iniciar sesión"}
+            {supabaseAvailable && isLoggedIn ? "cerrar sesión" : "iniciar sesión"}
           </a>
         </li>
       </ul>

@@ -1,6 +1,5 @@
 "use client";
-import React, { useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const initialForm = {
@@ -23,9 +22,22 @@ const Page = () => {
   const [form, setForm] = useState(initialForm);
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(false);
+  const [supabaseAvailable, setSupabaseAvailable] = useState(false);
 
   const router = useRouter();
-  const supabase = createClientComponentClient();
+
+  useEffect(() => {
+    // Check if Supabase environment variables are available
+    const hasSupabaseConfig = !!(
+      process.env.NEXT_PUBLIC_SUPABASE_URL && 
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+    setSupabaseAvailable(hasSupabaseConfig);
+    
+    if (!hasSupabaseConfig) {
+      setMensaje("El sistema de registro no está configurado en este momento.");
+    }
+  }, []);
 
   // Cuando cambia un input
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,59 +50,74 @@ const Page = () => {
     setMensaje("");
     setLoading(true);
 
+    if (!supabaseAvailable) {
+      setMensaje("El sistema de registro no está disponible.");
+      setLoading(false);
+      return;
+    }
+
     if (form.password !== form.password2) {
       setMensaje("Las contraseñas no coinciden.");
       setLoading(false);
       return;
     }
 
-    // 1. Crear usuario en Auth
-    const { data, error } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.password,
-    });
+    try {
+      const { createClientComponentClient } = await import("@supabase/auth-helpers-nextjs");
+      const supabase = createClientComponentClient();
 
-    if (error) {
-      setMensaje("Error registrando usuario: " + error.message);
-      setLoading(false);
-      return;
-    }
+      // 1. Crear usuario en Auth
+      const { data, error } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+      });
 
-    // 2. Insertar perfil con datos extra
-    const userId = data.user?.id;
-    if (userId) {
-      const { error: perfilError } = await supabase.from("perfiles").insert([{
-          id: userId,
-          nombre: form.nombre,
-          alias: form.alias,
-          fechaNacimiento: form.fechaNacimiento,
-          sexo: form.sexo,
-          genero: form.genero,
-          tipoUsuario: form.tipoUsuario,
-          banda: form.banda,
-          identidad: form.identidad,
-          numeroTelefono: form.numeroTelefono,
-          direccion: form.direccion,
-        },
-      ]);
-      if (perfilError) {
-        console.error(perfilError);
-        setMensaje("Usuario creado, pero error al guardar perfil: " + perfilError.message);
-      } else {
-        setMensaje("¡Usuario creado correctamente! Revisa tu correo para confirmar.");
+      if (error) {
+        setMensaje("Error registrando usuario: " + error.message);
+        setLoading(false);
+        return;
+      }
 
-        // Si NO tienes confirmación de correo activada, la sesión ya está activa y puedes redirigir
-        // Si tienes confirmación de correo, el usuario debe iniciar sesión después de confirmar el email
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          // Esto activa el middleware para copiar sesión a cookies httpOnly
-          router.push("/");
+      // 2. Insertar perfil con datos extra
+      const userId = data.user?.id;
+      if (userId) {
+        const { error: perfilError } = await supabase.from("perfiles").insert([{
+            id: userId,
+            nombre: form.nombre,
+            alias: form.alias,
+            fechaNacimiento: form.fechaNacimiento,
+            sexo: form.sexo,
+            genero: form.genero,
+            tipoUsuario: form.tipoUsuario,
+            banda: form.banda,
+            identidad: form.identidad,
+            numeroTelefono: form.numeroTelefono,
+            direccion: form.direccion,
+          },
+        ]);
+        if (perfilError) {
+          console.error(perfilError);
+          setMensaje("Usuario creado, pero error al guardar perfil: " + perfilError.message);
+        } else {
+          setMensaje("¡Usuario creado correctamente! Revisa tu correo para confirmar.");
+
+          // Si NO tienes confirmación de correo activada, la sesión ya está activa y puedes redirigir
+          // Si tienes confirmación de correo, el usuario debe iniciar sesión después de confirmar el email
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            // Esto activa el middleware para copiar sesión a cookies httpOnly
+            router.push("/");
+          }
         }
         setForm(initialForm);
+      } else {
+        setMensaje("Usuario creado, pero no se pudo obtener el ID.");
       }
-    } else {
-      setMensaje("Usuario creado, pero no se pudo obtener el ID.");
+    } catch (error) {
+      setMensaje("Error al inicializar el sistema de registro.");
+      console.warn('Error initializing Supabase:', error);
     }
+    
     setLoading(false);
   };
 

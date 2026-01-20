@@ -1,12 +1,10 @@
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
-  // Esto sincroniza la sesión (token) del navegador a las cookies httpOnly
-  await createMiddlewareClient({ req, res });
-  return res;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function middleware(_req: NextRequest) {
+  // Temporarily disabled Supabase middleware for UI changes
+  return NextResponse.next();
 }
 
 // Aplica en todas las rutas (puedes limitar con config si quieres)

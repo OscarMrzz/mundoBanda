@@ -1,15 +1,27 @@
 "use client";
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from "next/navigation";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(false);
+  const [supabaseAvailable, setSupabaseAvailable] = useState(false);
   const router = useRouter();
-  const supabase = createClientComponentClient();
+
+  useEffect(() => {
+    // Check if Supabase environment variables are available
+    const hasSupabaseConfig = !!(
+      process.env.NEXT_PUBLIC_SUPABASE_URL && 
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+    setSupabaseAvailable(hasSupabaseConfig);
+    
+    if (!hasSupabaseConfig) {
+      setMensaje("El sistema de autenticación no está configurado en este momento.");
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.id]: e.target.value });
@@ -20,27 +32,42 @@ const Login = () => {
     setMensaje("");
     setLoading(true);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: form.email,
-      password: form.password,
-    });
-
-    if (error) {
-      if (error.message.includes("Invalid login credentials")) {
-        setMensaje("Correo o contraseña incorrectos.");
-      } else if (error.message.includes("Email not confirmed")) {
-        setMensaje("Por favor confirma tu correo antes de iniciar sesión.");
-      } else {
-        setMensaje("Error al iniciar sesión: " + error.message);
-      }
+    if (!supabaseAvailable) {
+      setMensaje("El sistema de autenticación no está disponible.");
       setLoading(false);
       return;
     }
 
-    // Si hay sesión, redirige al home
-    if (data.session) {
-      router.push("/");
+    try {
+      const { createClientComponentClient } = await import("@supabase/auth-helpers-nextjs");
+      const supabase = createClientComponentClient();
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: form.email,
+        password: form.password,
+      });
+
+      if (error) {
+        if (error.message.includes("Invalid login credentials")) {
+          setMensaje("Correo o contraseña incorrectos.");
+        } else if (error.message.includes("Email not confirmed")) {
+          setMensaje("Por favor confirma tu correo antes de iniciar sesión.");
+        } else {
+          setMensaje("Error al iniciar sesión: " + error.message);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Si hay sesión, redirige al home
+      if (data.session) {
+        router.push("/");
+      }
+    } catch (error) {
+      setMensaje("Error al inicializar el sistema de autenticación.");
+      console.warn('Error initializing Supabase:', error);
     }
+    
     setLoading(false);
   };
 
@@ -78,10 +105,10 @@ const Login = () => {
           </div>
           <button
             type='submit'
-            className='bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors'
-            disabled={loading}
+            className='bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed'
+            disabled={loading || !supabaseAvailable}
           >
-            {loading ? "Entrando..." : "Iniciar Sesión"}
+            {loading ? "Entrando..." : !supabaseAvailable ? "No disponible" : "Iniciar Sesión"}
           </button>
           {mensaje && <div className="mt-4 text-sm text-red-300">{mensaje}</div>}
         </form>
